@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>时光学院：初中英语沉浸式剧情游戏</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --card: #1f2937;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --text: #e5e7eb;
+      --muted: #93c5fd;
+      --accent: #38bdf8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: radial-gradient(circle at 20% 10%, #1e293b, var(--bg));
+      color: var(--text);
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 24px auto;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+    }
+    .panel {
+      background: rgba(17,24,39,0.92);
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+    }
+    .title { font-size: 24px; margin: 0 0 8px; color: var(--accent); }
+    .subtitle { color: #cbd5e1; margin: 0 0 16px; }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #0ea5e91f;
+      border: 1px solid #0ea5e944;
+      color: #bae6fd;
+      font-size: 12px;
+      margin-right: 6px;
+    }
+    .story {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 14px;
+      line-height: 1.7;
+      min-height: 120px;
+      margin-bottom: 14px;
+    }
+    .question {
+      font-weight: 600;
+      margin: 8px 0;
+      color: #f8fafc;
+    }
+    input, select, button {
+      width: 100%;
+      border-radius: 10px;
+      border: 1px solid #475569;
+      background: #0b1220;
+      color: var(--text);
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 15px;
+    }
+    button {
+      background: linear-gradient(90deg, #0284c7, #0ea5e9);
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .row { display: flex; gap: 10px; }
+    .row > * { flex: 1; }
+    .log {
+      background: #020617;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      min-height: 180px;
+      max-height: 360px;
+      overflow: auto;
+      padding: 10px;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .stat { margin: 8px 0; font-size: 14px; }
+    .ok { color: var(--ok); }
+    .warn { color: var(--warn); }
+    progress { width: 100%; height: 12px; }
+    @media (max-width: 860px) {
+      .wrap { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="panel">
+      <h1 class="title">时光学院：初中英语任务线</h1>
+      <p class="subtitle">剧情 + 词汇 + 语法 + 记忆法则 + 自动优化（前端可视版）</p>
+      <span class="badge">间隔重复</span>
+      <span class="badge">主动回忆</span>
+      <span class="badge">错题强化</span>
+
+      <div id="story" class="story"></div>
+      <div id="question" class="question"></div>
+      <input id="answer" placeholder="输入你的答案（词汇英文或 y/n）" />
+      <div class="row">
+        <button id="submitBtn">提交答案</button>
+        <button id="nextBtn">下一题</button>
+      </div>
+      <div class="row">
+        <button id="startBtn">开始剧情模式</button>
+        <button id="autoBtn">自动迭代模拟</button>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h2 style="margin-top:0">学习仪表盘</h2>
+      <div class="stat">章节：<span id="stage">1</span> / 3</div>
+      <div class="stat">XP：<span id="xp">0</span></div>
+      <div class="stat">正确率：<span id="acc">0%</span></div>
+      <div class="stat">策略：<span id="policy">等待开始</span></div>
+      <div class="stat">词汇权重</div>
+      <progress id="wordWeight" value="60" max="100"></progress>
+      <div class="stat">语法权重</div>
+      <progress id="grammarWeight" value="40" max="100"></progress>
+      <h3>错题本 TOP</h3>
+      <div id="wrongBook" class="log"></div>
+      <h3>事件日志</h3>
+      <div id="log" class="log"></div>
+    </aside>
+  </div>
+
+  <script>
+    const curriculum = {
+      vocab: [
+        { en: "library", zh: "图书馆", level: 1, streak: 0 },
+        { en: "borrow", zh: "借入", level: 1, streak: 0 },
+        { en: "return", zh: "归还", level: 1, streak: 0 },
+        { en: "festival", zh: "节日", level: 1, streak: 0 },
+        { en: "prepare", zh: "准备", level: 1, streak: 0 },
+        { en: "practice", zh: "练习", level: 1, streak: 0 },
+        { en: "environment", zh: "环境", level: 1, streak: 0 },
+        { en: "protect", zh: "保护", level: 1, streak: 0 }
+      ],
+      grammar: [
+        { title: "一般现在时", example: "She walks to school every day.", level: 1 },
+        { title: "一般过去时", example: "We visited the museum last weekend.", level: 1 },
+        { title: "一般将来时", example: "I will join the club tomorrow.", level: 1 },
+        { title: "现在进行时", example: "They are cleaning the classroom now.", level: 1 }
+      ],
+      scenarios: [
+        {
+          title: "第一章：失落的校史钥匙",
+          objective: "在图书馆找到校史档案，帮助同学完成展览。",
+          vocab: ["library", "borrow", "return"],
+          grammar: ["一般现在时"]
+        },
+        {
+          title: "第二章：校园文化节倒计时",
+          objective: "组织排练、通知志愿者并完成舞台彩排。",
+          vocab: ["festival", "prepare", "practice"],
+          grammar: ["一般将来时", "现在进行时"]
+        },
+        {
+          title: "第三章：绿色行动日",
+          objective: "开展环保挑战并向外校同学展示成果。",
+          vocab: ["environment", "protect"],
+          grammar: ["一般过去时", "一般现在时"]
+        }
+      ]
+    };
+
+    const state = {
+      stage: 0,
+      xp: 0,
+      total: 0,
+      correct: 0,
+      idx: 0,
+      queue: [],
+      wrongBook: {},
+      wordWeight: 0.6,
+      grammarWeight: 0.4,
+      policy: "等待开始"
+    };
+
+    const el = (id) => document.getElementById(id);
+    const log = (txt) => {
+      el("log").textContent += `[${new Date().toLocaleTimeString()}] ${txt}\n`;
+      el("log").scrollTop = el("log").scrollHeight;
+    };
+
+    function renderStory() {
+      const s = curriculum.scenarios[state.stage] || { title: "已完成", objective: "恭喜通关。" };
+      el("story").innerHTML = `<strong>${s.title}</strong><br>${s.objective}`;
+      el("stage").textContent = Math.min(state.stage + 1, 3);
+    }
+
+    function makeQueueForStage() {
+      const s = curriculum.scenarios[state.stage];
+      if (!s) return;
+      const q = [];
+      s.vocab.forEach((key) => {
+        const w = curriculum.vocab.find((x) => x.en === key);
+        q.push({ type: "vocab", key, prompt: `词汇：'${w.zh}' 的英文是？`, answer: w.en });
+      });
+      s.grammar.forEach((title) => {
+        const g = curriculum.grammar.find((x) => x.title === title);
+        q.push({ type: "grammar", key: title, prompt: `语法：你会用 ${title} 造句吗？(输入 y/n)`, answer: "y", example: g.example });
+      });
+      state.queue = q;
+      state.idx = 0;
+      showCurrentQuestion();
+    }
+
+    function showCurrentQuestion() {
+      const q = state.queue[state.idx];
+      if (!q) {
+        finishStage();
+        return;
+      }
+      el("question").textContent = q.prompt;
+      el("answer").value = "";
+      el("answer").focus();
+    }
+
+    function optimizePolicy(acc) {
+      if (acc < 0.65) {
+        state.wordWeight = Math.min(0.75, state.wordWeight + 0.05);
+      } else if (acc > 0.85) {
+        state.wordWeight = Math.max(0.45, state.wordWeight - 0.05);
+      }
+      state.grammarWeight = 1 - state.wordWeight;
+      if (acc < 0.65) return "准确率偏低：增加词汇复现频率";
+      if (acc > 0.85) return "准确率优秀：提高语法表达挑战";
+      return "准确率稳定：保持节奏";
+    }
+
+    function refreshDashboard() {
+      const acc = state.total ? Math.round((state.correct / state.total) * 100) : 0;
+      el("xp").textContent = state.xp;
+      el("acc").textContent = `${acc}%`;
+      el("policy").textContent = state.policy;
+      el("wordWeight").value = Math.round(state.wordWeight * 100);
+      el("grammarWeight").value = Math.round(state.grammarWeight * 100);
+      const wrong = Object.entries(state.wrongBook)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 10)
+        .map(([k,v]) => `${k}: ${v} 次`).join("\n");
+      el("wrongBook").textContent = wrong || "暂无";
+    }
+
+    function submitAnswer() {
+      const q = state.queue[state.idx];
+      if (!q) return;
+      const ans = el("answer").value.trim().toLowerCase();
+      const ok = ans === q.answer;
+      state.total += 1;
+      state.correct += ok ? 1 : 0;
+      state.xp += ok ? 10 : 2;
+      if (!ok) state.wrongBook[q.key] = (state.wrongBook[q.key] || 0) + 1;
+
+      if (q.type === "grammar" && ok) {
+        log(`✅ ${q.key} 掌握，示例：${q.example}`);
+      } else {
+        log(`${ok ? "✅" : "❌"} ${q.prompt} 你的答案：${ans || "(空)"}`);
+      }
+
+      const acc = state.correct / state.total;
+      state.policy = optimizePolicy(acc);
+      refreshDashboard();
+      state.idx += 1;
+      showCurrentQuestion();
+    }
+
+    function finishStage() {
+      const current = curriculum.scenarios[state.stage];
+      log(`🎬 章节完成：${current.title}`);
+      state.stage += 1;
+      if (state.stage >= curriculum.scenarios.length) {
+        el("question").textContent = "🎉 主线完结！你已完成英语校园任务线。";
+        el("story").innerHTML = "<strong>终章：校园英文演讲</strong><br>你成功修复校园记忆档案，成为英语之星！";
+        refreshDashboard();
+        return;
+      }
+      renderStory();
+      makeQueueForStage();
+      refreshDashboard();
+    }
+
+    async function autoIterate(rounds = 30, gapMs = 120) {
+      log("🤖 自动迭代开始（前端可视模拟）");
+      for (let i = 1; i <= rounds; i++) {
+        for (const s of curriculum.scenarios) {
+          for (const key of s.vocab) {
+            const w = curriculum.vocab.find((x) => x.en === key);
+            const hit = Math.random() < (0.58 + 0.08 * w.level);
+            state.total += 1;
+            state.correct += hit ? 1 : 0;
+            w.level = hit ? Math.min(5, w.level + 1) : Math.max(1, w.level - 1);
+          }
+          for (const title of s.grammar) {
+            const g = curriculum.grammar.find((x) => x.title === title);
+            const hit = Math.random() < (0.55 + 0.08 * g.level);
+            state.total += 1;
+            state.correct += hit ? 1 : 0;
+            g.level = hit ? Math.min(5, g.level + 1) : Math.max(1, g.level - 1);
+          }
+        }
+        const acc = state.correct / Math.max(1, state.total);
+        state.policy = optimizePolicy(acc);
+        if (i % 5 === 0) {
+          log(`Round ${i}: 准确率 ${(acc * 100).toFixed(1)}%, 策略=${state.policy}`);
+        }
+        refreshDashboard();
+        await new Promise((r) => setTimeout(r, gapMs));
+      }
+      log("✅ 自动迭代结束。可继续手动剧情闯关。");
+    }
+
+    el("startBtn").addEventListener("click", () => {
+      state.stage = 0;
+      state.idx = 0;
+      state.total = 0;
+      state.correct = 0;
+      state.xp = 0;
+      state.wrongBook = {};
+      state.wordWeight = 0.6;
+      state.grammarWeight = 0.4;
+      state.policy = "剧情模式已启动";
+      el("log").textContent = "";
+      renderStory();
+      makeQueueForStage();
+      refreshDashboard();
+      log("🚀 开始剧情模式");
+    });
+
+    el("submitBtn").addEventListener("click", submitAnswer);
+    el("nextBtn").addEventListener("click", () => {
+      state.idx += 1;
+      showCurrentQuestion();
+    });
+    el("autoBtn").addEventListener("click", () => autoIterate(40, 80));
+
+    renderStory();
+    refreshDashboard();
+  </script>
+</body>
+</html>
