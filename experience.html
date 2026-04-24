@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>初中英语沉浸式体验页</title>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg2: #0f172a;
+      --panel: rgba(15, 23, 42, 0.85);
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent2: #22d3ee;
+      --ok: #22c55e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      background: radial-gradient(circle at 20% 0%, #1e293b 0%, var(--bg) 45%);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 16px 40px;
+    }
+
+    .hero {
+      border: 1px solid #334155;
+      border-radius: 18px;
+      padding: 24px;
+      background: linear-gradient(120deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.85));
+      box-shadow: 0 16px 40px rgba(2, 6, 23, 0.45);
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(26px, 4vw, 38px);
+      line-height: 1.2;
+      color: #e0f2fe;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 780px;
+    }
+
+    .badge-row {
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      border: 1px solid #155e75;
+      color: #a5f3fc;
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      background: rgba(6, 182, 212, 0.12);
+    }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-block;
+      text-decoration: none;
+      color: white;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 600;
+      border: 0;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-primary {
+      background: linear-gradient(90deg, #0284c7, #06b6d4);
+    }
+
+    .btn-secondary {
+      background: #1e293b;
+      border: 1px solid #334155;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .card {
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 16px;
+      background: var(--panel);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 18px;
+      color: #bae6fd;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      line-height: 1.8;
+      color: #cbd5e1;
+    }
+
+    .steps li { margin-bottom: 2px; }
+
+    .ok {
+      color: var(--ok);
+      font-weight: 600;
+    }
+
+    .embed {
+      border: 1px solid #334155;
+      border-radius: 14px;
+      overflow: hidden;
+      min-height: 720px;
+      background: var(--bg2);
+    }
+
+    iframe {
+      display: block;
+      width: 100%;
+      min-height: 720px;
+      border: 0;
+      background: var(--bg2);
+    }
+
+    .foot {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .embed,
+      iframe {
+        min-height: 820px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <h1>初中英语沉浸式体验网页</h1>
+      <p class="subtitle">
+        这是项目的统一体验入口：包含玩法说明、快速启动提示，以及内嵌的网页剧情学习游戏。
+        你可以直接在当前页面完成“剧情推进 + 实时答题 + 学习数据反馈”。
+      </p>
+      <div class="badge-row">
+        <span class="badge">剧情驱动学习</span>
+        <span class="badge">词汇/语法双线</span>
+        <span class="badge">错题强化</span>
+        <span class="badge">自适应优化</span>
+      </div>
+      <div class="actions">
+        <a class="btn btn-primary" href="web_game.html" target="_blank" rel="noopener">在新窗口打开完整游戏</a>
+        <a class="btn btn-secondary" href="GAME_README_CN.md" target="_blank" rel="noopener">查看中文说明</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>你可以在这里体验什么？</h2>
+        <ul>
+          <li><span class="ok">沉浸剧情</span>：三章校园故事引导学习任务。</li>
+          <li><span class="ok">即时练习</span>：词汇与语法题交替出现，边学边测。</li>
+          <li><span class="ok">数据看板</span>：XP、正确率、策略权重实时更新。</li>
+          <li><span class="ok">学习闭环</span>：错题记录 + 强化复现 + 自动调参。</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>30 秒快速开始</h2>
+        <ul class="steps">
+          <li>点击下方嵌入区的 <strong>开始剧情模式</strong>。</li>
+          <li>按提示输入英文答案或 <code>y/n</code>。</li>
+          <li>观察右侧“学习仪表盘”的策略变化。</li>
+          <li>可点击“自动迭代模拟”查看自动优化效果。</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="embed" aria-label="网页游戏嵌入区">
+      <iframe title="初中英语沉浸式游戏" src="web_game.html"></iframe>
+    </section>
+
+    <p class="foot">提示：若嵌入未显示，可使用上方按钮在新窗口打开 <code>web_game.html</code>。</p>
+  </main>
+</body>
+</html>
